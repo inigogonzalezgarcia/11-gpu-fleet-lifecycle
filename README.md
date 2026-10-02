@@ -91,6 +91,23 @@ bash scripts/rollout.sh inventory   # driver version per node
 
 Plus unit tests for the plan parser and windows, the controller (with a fake cluster and a fake agent: canary, batches, approval, windows, pause/abort, PDB waits, failure budget, rollback and quarantine), the API client and the agent.
 
+Excerpt from a CI run (26 checks, 0 failed):
+
+```
+==> 2. Bad driver: canary fails validation
+  PASS  rollout halted
+  PASS  canary gpu-fleet-worker is RolledBack
+  PASS  no other node touched
+==> 3. Good driver: canary, approval, batches
+  PASS  canary passed, waiting for approval
+  PASS  nothing else starts before approval
+  PASS  at most 2 nodes cordoned at once (saw 2)
+  PASS  all GPU nodes on r580-lab, Done and schedulable
+  PASS  trainer 4/4 ready after the rollout
+==> 4. Driver that raises XID 79 during the soak
+  PASS  reason mentions XID 79 (XID 79 / 0 ECC error(s) while soaking on r580-lab-xid)
+```
+
 ## Documentation
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): the loop, the state it keeps and where, failure handling
