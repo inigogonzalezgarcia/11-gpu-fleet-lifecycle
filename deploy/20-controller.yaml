@@ -1,0 +1,59 @@
+# Single replica with Recreate: no leader election, so two controllers must never run at once.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gpu-lifecycle
+  namespace: gpu-lifecycle
+  labels: {app.kubernetes.io/name: gpu-lifecycle}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app.kubernetes.io/name: gpu-lifecycle}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/name: gpu-lifecycle}
+    spec:
+      serviceAccountName: gpu-lifecycle
+      nodeSelector:
+        node-role.kubernetes.io/control-plane: ""   # never on a node it drains
+      tolerations:
+        - {key: node-role.kubernetes.io/control-plane, effect: NoSchedule}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: controller
+          image: IMAGE
+          imagePullPolicy: IfNotPresent
+          command: ["/usr/local/bin/gpulifecycle"]
+          args:
+            - -interval=3s
+            - -validation-gpus=8
+            - -validation-image=VALIDATION_IMAGE
+            - -agent-port=9500
+          env:
+            - name: POD_NAMESPACE
+              valueFrom: {fieldRef: {fieldPath: metadata.namespace}}
+          ports:
+            - {name: metrics, containerPort: 8080}
+          livenessProbe:
+            httpGet: {path: /healthz, port: metrics}
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {memory: 64Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gpu-lifecycle
+  namespace: gpu-lifecycle
+spec:
+  selector: {app.kubernetes.io/name: gpu-lifecycle}
+  ports:
+    - {name: metrics, port: 8080, targetPort: metrics}

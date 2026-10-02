@@ -1,0 +1,55 @@
+# Least privilege. Each rule maps to calls in internal/k8s.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gpu-lifecycle
+  namespace: gpu-lifecycle
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gpu-lifecycle
+rules:
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "patch"]      # inventory label, state annotations, cordon/uncordon
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+  - apiGroups: [""]
+    resources: ["pods/eviction"]
+    verbs: ["create"]                    # drains respect PodDisruptionBudgets
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gpu-lifecycle
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: gpu-lifecycle}
+subjects:
+  - {kind: ServiceAccount, name: gpu-lifecycle, namespace: gpu-lifecycle}
+---
+# Plan/status ConfigMaps and validation Jobs, only in the controller's namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: gpu-lifecycle
+  namespace: gpu-lifecycle
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "create", "patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["create", "get", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: gpu-lifecycle
+  namespace: gpu-lifecycle
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: gpu-lifecycle}
+subjects:
+  - {kind: ServiceAccount, name: gpu-lifecycle, namespace: gpu-lifecycle}
