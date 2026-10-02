@@ -1,0 +1,11 @@
+{
+  "name": "driver-r580-bad",
+  "selector": "nvidia.com/gpu.present=true",
+  "target": "r580-lab-bad",
+  "canary": 1,
+  "batchSize": 2,
+  "maxUnavailable": 2,
+  "soak": "20s",
+  "upgradeTimeout": "2m",
+  "validationTimeout": "2m"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "driver-r580",
+  "selector": "nvidia.com/gpu.present=true",
+  "component": "driver",
+  "target": "r580-lab",
+  "canary": 1,
+  "pauseAfterCanary": true,
+  "batchSize": 2,
+  "maxUnavailable": 2,
+  "failureBudget": 0,
+  "soak": "20s",
+  "upgradeTimeout": "2m",
+  "validationTimeout": "2m"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "driver-r580-fleet",
+  "selector": "nvidia.com/gpu.present=true",
+  "component": "driver",
+  "target": "r580-lab",
+  "canary": 2,
+  "pauseAfterCanary": true,
+  "batchSize": 4,
+  "maxUnavailable": 4,
+  "failureBudget": 1,
+  "soak": "30m",
+  "upgradeTimeout": "20m",
+  "validationTimeout": "30m",
+  "window": {"start": "22:00", "end": "06:00", "days": ["Mon", "Tue", "Wed", "Thu"]}
+}
