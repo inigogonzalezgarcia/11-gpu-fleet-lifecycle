@@ -6,7 +6,7 @@ A small Kubernetes controller that rolls a new GPU driver across a fleet of node
 
 ![ci](https://github.com/inigogonzalezgarcia/11-gpu-fleet-lifecycle/actions/workflows/ci.yml/badge.svg)
 
-> A learning-in-public lab about "day 2" operations for GPU clusters. I don't have production GPU fleet experience; this project is how I am learning the problem. There is no real GPU and no real driver install in CI: each node runs a small agent that pretends to install versions, and some versions are deliberately broken to exercise the failure paths. In a real cluster the NVIDIA GPU Operator has its own driver upgrade controller; this lab rebuilds a simplified version of the idea to understand it ([why](docs/decisions.md#1-why-rebuild-something-the-gpu-operator-already-does)).
+> A lab on "day 2" operations for GPU clusters, built on release management practice: planning, testing, rollback and validation after each release. In CI each node runs a small agent that pretends to install versions, and some versions are deliberately broken to exercise the failure paths. In a real cluster the NVIDIA GPU Operator has its own driver upgrade controller; this lab rebuilds a simplified version of the idea to understand it ([why](docs/decisions.md#1-why-rebuild-something-the-gpu-operator-already-does)).
 
 Third in a series: [09 – node remediation](https://github.com/inigogonzalezgarcia/09-gpu-node-remediation) fixes broken nodes, [10 – fleet observability](https://github.com/inigogonzalezgarcia/10-gpu-fleet-observability) watches the fleet, and this one changes it safely.
 
